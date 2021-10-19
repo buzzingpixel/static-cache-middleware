@@ -18,6 +18,7 @@
         "doctrine/coding-standard": "^9",
         "friendsofphp/php-cs-fixer": "^2.18",
         "league/flysystem": "^1.0.0",
+        "php-di/php-di": "^6.3",
         "phpstan/phpstan": "^0.12.69",
         "phpstan/phpstan-deprecation-rules": "^0.12.6",
         "phpstan/phpstan-strict-rules": "^0.12.9",
