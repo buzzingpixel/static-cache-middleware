@@ -117,6 +117,23 @@ class RedisCacheApiTest extends TestCase
             }
         );
 
+        $this->redisStub->method('keys')->willReturnCallback(
+            function (string $pattern): array {
+                $this->redisCalls[] = [
+                    'method' => 'keys',
+                    'pattern' => $pattern,
+                ];
+
+                return [
+                    'key1',
+                    'key2',
+                    'foo-bar/static-page-cache/key-1',
+                    '/static-page-cache/key-1',
+                    '/static-page-cache/key-2',
+                ];
+            }
+        );
+
         $this->responseFactoryCalls = [];
 
         $this->responseFactoryStub = $this->createMock(
@@ -595,19 +612,22 @@ class RedisCacheApiTest extends TestCase
 
         $cacheApi->clearAllCache();
 
-        self::assertCount(
-            1,
-            $this->redisCalls,
-        );
-
         self::assertSame(
-            '/static-page-cache/*',
-            $this->redisCalls[0]['key1'],
-        );
-
-        self::assertSame(
-            'del',
-            $this->redisCalls[0]['method'],
+            [
+                [
+                    'method' => 'keys',
+                    'pattern' => '*',
+                ],
+                [
+                    'method' => 'del',
+                    'key1' => '/static-page-cache/key-1',
+                ],
+                [
+                    'method' => 'del',
+                    'key1' => '/static-page-cache/key-2',
+                ],
+            ],
+            $this->redisCalls
         );
 
         self::assertCount(

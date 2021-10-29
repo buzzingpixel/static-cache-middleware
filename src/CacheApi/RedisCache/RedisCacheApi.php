@@ -12,7 +12,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Redis;
 
+use function array_filter;
+use function array_map;
 use function assert;
+use function mb_strpos;
 use function serialize;
 use function unserialize;
 
@@ -102,6 +105,14 @@ class RedisCacheApi implements CacheApiContract
 
     public function clearAllCache(): void
     {
-        $this->redis->del('/static-page-cache/*');
+        array_map(
+            [$this->redis, 'del'],
+            array_filter(
+                $this->redis->keys('*'),
+                static function ($key): bool {
+                    return mb_strpos($key, '/static-page-cache/') === 0;
+                }
+            ),
+        );
     }
 }
